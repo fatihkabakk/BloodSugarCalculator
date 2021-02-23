@@ -11,4 +11,4 @@
 
 + This Project Is A Blood Sugar Level Calculator Written In Python Using Tkinter
 + This Project Is Open-Source And Will Be Open To Any Contributin
-+ Lastly, Hope This Will Be Helpful For Diabetics
++ Lastly, Hope This Would Be Helpful For Diabetics

@@ -1,4 +1,4 @@
-# Created By FatihKabak : @fatihkabakk on GitHub
+# Created By Fatih Kabak : @fatihkabakk on GitHub
 # -*- coding: utf-8 -*-
 from tkinter import *
 import tkinter.messagebox as messagebox
@@ -145,15 +145,20 @@ try:
         global average_label
         con_update = sqlite3.connect(database)
         cursor_update = con_update.cursor()
-        values = list()
-        values.append(editor_value_entry1.get())
-        values.append(editor_value_entry2.get())
-        values.append(editor_value_entry3.get())
-        values.append(editor_value_entry4.get())
+        values = [editor_value_entry1.get(), editor_value_entry2.get(),
+                  editor_value_entry3.get(), editor_value_entry4.get()]
         date_to_update = editor_date_entry.get()
 
         result = validate(values, date_to_update)
-        if result["edit"]:
+
+        if result["add"]:
+            editor.destroy()
+            messagebox.showwarning("Veritabanında Kayıt Bulunamadı",
+                                   "Belirtilen Tarihe Ait Bir Değer Veritabanında Mevcut Değil."
+                                   "\nVeriyi Güncelleyebilmek İçin Önce Veri Eklemelisiniz.")
+            return ""
+
+        elif result["edit"]:
             try:
                 used_stamp = calc_stamp(editor_date_entry.get())
                 cursor_update.execute("UPDATE degerler SET value1 = ?, value2 = ?, value3 = ?, value4 = ?, "
@@ -183,19 +188,15 @@ try:
         value2 = value_entry2.get()
         value3 = value_entry3.get()
         value4 = value_entry4.get()
-        values = list()
-        values.append(value1)
-        values.append(value2)
-        values.append(value3)
-        values.append(value4)
 
-        result = validate(values, date_get)
+        result = validate([value1, value2, value3, value4], date_get)
         used_stamp = calc_stamp(date_get)
         if result["add"]:
             cursor_add.execute("INSERT INTO degerler VALUES (?, ?, ?, ?, ?, ?)",
-                               (date_get, values[0], values[1], values[2], values[3], used_stamp))
+                               (date_get, value1, value2, value3, value4, used_stamp))
             con_add.commit()
             success(success_messages["added"])
+
         if result["edit"]:
             selection = result["data"]
             messagebox.showwarning("Veritabanında Zaten Mevcut",
@@ -206,7 +207,7 @@ try:
         else:
             pass
 
-        print(date_get, values)
+        print(date_get, value1, value2, value3, value4)
         val1 = calc_average()
         average_label.place_forget()
         average_label = Label(root, text=val1['message'], bg=background, font=font, fg=colour)
@@ -220,7 +221,20 @@ try:
         global editor_value_entry3
         global editor_value_entry4
         global editor_date_entry
+
         editor_date = date_entry.get()
+
+        con_edit = sqlite3.connect(database)
+        cursor_edit = con_edit.cursor()
+        cursor_edit.execute("SELECT * FROM degerler WHERE date = ?", (editor_date,))
+        records = cursor_edit.fetchall()
+
+        if len(records) < 1:
+            messagebox.showwarning("Veritabanında Kayıt Bulunamadı",
+                                   "Belirtilen Tarihe Ait Bir Değer Veritabanında Mevcut Değil."
+                                   "\nVeriyi Güncelleyebilmek İçin Önce Veri Eklemelisiniz.")
+            return ""
+
         editor = Toplevel()
         editor.title("Şeker Editörü v1.1")
         editor.iconbitmap('./icons/icon.ico')
@@ -259,12 +273,7 @@ try:
                                       bg="#b8bbb5", activebackground=colour)
         editor_update_button.place(x=184, y=150, width=228, height=40)
 
-        con_edit = sqlite3.connect(database)
-        cursor_edit = con_edit.cursor()
         print(editor_date)
-
-        cursor_edit.execute("SELECT * FROM degerler WHERE date = ?", (editor_date,))
-        records = cursor_edit.fetchall()
 
         for record in records:
             editor_value_entry1.insert(0, record[1])

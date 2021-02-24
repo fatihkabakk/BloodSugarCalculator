@@ -10,5 +10,5 @@
 <h3> Project Description & Additional Notes </h3>
 
 + This Project Is A Blood Sugar Level Calculator Written In Python Using Tkinter
-+ This Project Is Open-Source And Will Be Open To Any Contributin
++ This Project Is Open-Source And Will Remain Open-Source
 + Lastly, Hope This Would Be Helpful For Diabetics
